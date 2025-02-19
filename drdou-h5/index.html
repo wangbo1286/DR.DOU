@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DR·DOU医美中心</title>
     <style>
-        /* 基础样式 */
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +15,25 @@
         body {
             background: #f5f5f5;
             color: #333;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            padding: 15px;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFB6C1;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
         }
 
         /* 图片画廊 */
@@ -31,28 +49,46 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            aspect-ratio: 3/4;
+            display: flex;
+            flex-direction: column;
         }
 
         .gallery-img {
             width: 100%;
-            height: 200px;
+            height: 75%;
             object-fit: cover;
-            border-radius: 12px 12px 0 0;
+            background: #f8f8f8;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-img[data-src] {
+            opacity: 0;
+        }
+
+        /* 按钮容器 */
+        .btn-container {
+            padding: 10px;
+            height: 25%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .detail-btn {
-            width: 100%;
+            width: 90%;
             padding: 12px;
             background: linear-gradient(135deg, #FFB6C1, #FF69B4);
             color: white;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
-            transition: opacity 0.3s;
+            transition: transform 0.2s;
         }
 
         .detail-btn:active {
-            opacity: 0.8;
+            transform: scale(0.95);
         }
 
         /* 详情弹窗 */
@@ -93,6 +129,7 @@
             color: #666;
         }
 
+        /* 项目详情样式 */
         .project-item {
             margin-bottom: 20px;
             padding: 15px;
@@ -121,6 +158,11 @@
     </style>
 </head>
 <body>
+    <!-- 搜索框 -->
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索项目名称或描述...">
+    </div>
+
     <!-- 图片画廊 -->
     <div class="gallery" id="galleryContainer"></div>
 
@@ -149,7 +191,6 @@
                 { name: "溶脂针", price: "298$起", desc: "靶向分解脂肪，局部塑形" },
                 { name: "祛颈纹", price: "380$起", desc: "填充修复颈部皱纹" }
             ],
-            // 其他6张图片数据...
             '5851f5af710b5fecc2d517bd048a47e': [
                 { name: "韩国胶原蛋白", price: "598$", desc: "提升皮肤弹性，改善皱纹" },
                 { name: "少女针", price: "1380$", desc: "刺激胶原再生，长效抗衰" }
@@ -176,23 +217,57 @@
             ]
         };
 
+        // 浏览记录存储
+        let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
+
         // 初始化画廊
         function initGallery() {
             const gallery = document.getElementById('galleryContainer');
-            const imageFiles = Object.keys(projects);
-            
-            imageFiles.forEach((file, index) => {
-                gallery.innerHTML += `
-                    <div class="gallery-item">
-                        <img src="./images/${file}.jpg" class="gallery-img" alt="项目图片${index+1}">
-                        <button class="detail-btn" onclick="showDetails('${file}')">查看项目特点</button>
+            gallery.innerHTML = Object.keys(projects).map(file => `
+                <div class="gallery-item">
+                    <img data-src="./images/${file}.jpg" class="gallery-img" alt="项目图片">
+                    <div class="btn-container">
+                        <button class="detail-btn" onclick="showDetails('${file}')">
+                            查看项目特点
+                        </button>
                     </div>
-                `;
+                </div>
+            `).join('');
+            
+            initLazyLoad();
+        }
+
+        // 图片懒加载
+        function initLazyLoad() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.onload = () => {
+                            img.style.opacity = 1;
+                            img.removeAttribute('data-src');
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, { 
+                rootMargin: '200px',
+                threshold: 0.01 
+            });
+
+            document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
+                observer.observe(img);
             });
         }
 
-        // 显示详情
+        // 显示项目详情
         function showDetails(fileKey) {
+            // 保存浏览记录
+            const timestamp = new Date().toLocaleString();
+            browseHistory = [{fileKey, timestamp}, ...browseHistory.slice(0, 9)];
+            localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
+
             const modal = document.getElementById('detailModal');
             const content = projects[fileKey].map(item => `
                 <div class="project-item">
@@ -211,15 +286,36 @@
             document.getElementById('detailModal').style.display = 'none';
         }
 
-        // 点击外部关闭
+        // 搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                const keyword = searchInput.value.trim().toLowerCase();
+                const allItems = document.querySelectorAll('.gallery-item');
+                
+                allItems.forEach((item, index) => {
+                    const fileKey = Object.keys(projects)[index];
+                    const match = projects[fileKey].some(item => 
+                        item.name.toLowerCase().includes(keyword) || 
+                        item.desc.toLowerCase().includes(keyword)
+                    );
+                    item.style.display = match ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // 初始化
+        window.onload = () => {
+            initGallery();
+            initSearch();
+        };
+
+        // 点击外部关闭弹窗
         window.onclick = function(e) {
             if (e.target.classList.contains('detail-modal')) {
                 closeModal();
             }
         }
-
-        // 初始化
-        window.onload = initGallery;
     </script>
 </body>
 </html>
