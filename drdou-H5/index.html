@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DR·DOU医美中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            padding: 15px;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFB6C1;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* 图片画廊 */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            aspect-ratio: 1/1; /* 正方形比例 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 80%;
+            object-fit: cover;
+            background: #f8f8f8;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .gallery-img[data-src] {
+            opacity: 0;
+        }
+
+        /* 按钮容器 */
+        .btn-container {
+            padding: 10px;
+            height: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .detail-btn {
+            width: 90%;
+            padding: 10px;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .detail-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 全屏查看 */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            animation: modalShow 0.3s;
+        }
+
+        /* 详情弹窗 */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 500px;
+            margin: 20px auto;
+            position: relative;
+            animation: modalShow 0.3s;
+        }
+
+        @keyframes modalShow {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* 项目详情样式 */
+        .project-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff5f7;
+            border-radius: 8px;
+        }
+
+        .project-title {
+            color: #FF69B4;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .project-price {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <!-- 搜索框 -->
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索项目名称或描述...">
+    </div>
+
+    <!-- 图片画廊 -->
+    <div class="gallery" id="galleryContainer"></div>
+
+    <!-- 全屏查看弹窗 -->
+    <div class="fullscreen-modal" id="fullscreenModal" onclick="closeFullscreen()">
+        <img class="fullscreen-img" id="fullscreenImg" src="" alt="全屏图片">
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="detail-modal" id="detailModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 完整项目数据
+        const projects = {
+            '2d269f2caf9224858e256246fb5d264': [
+                { name: "6G复位术", price: "2980$", desc: "高端抗衰技术，深层修复肌肤结构，提升面部轮廓紧致度" },
+                { name: "埋式避孕", price: "398$", desc: "长效无创避孕方案，操作便捷，安全性高" },
+                { name: "甜美酒窝", price: "680$", desc: "个性化定制自然酒窝，微创手术恢复快" },
+                { name: "美白针", price: "680$", desc: "国际认证成分，高效提亮肤色，改善暗沉" },
+                { name: "乳晕粉嫩", price: "980$", desc: "激光生物技术，恢复粉嫩色泽" },
+                { name: "黄金大V线雕", price: "1680$/198$", desc: "黄金线体支撑，立体提拉紧致" }
+            ],
+            '930f498d0a8d5980ae2ca4e7c1acb0c': [
+                { name: "丰耳垂", price: "168$起", desc: "玻尿酸填充塑造饱满耳垂" },
+                { name: "水光针", price: "198$起", desc: "深层补水保湿，提亮肤色" },
+                { name: "溶脂针", price: "298$起", desc: "靶向分解脂肪，局部塑形" },
+                { name: "祛颈纹", price: "380$起", desc: "填充修复颈部皱纹" }
+            ],
+            '5851f5af710b5fecc2d517bd048a47e': [
+                { name: "韩国胶原蛋白", price: "598$", desc: "提升皮肤弹性，改善皱纹" },
+                { name: "少女针", price: "1380$", desc: "刺激胶原再生，长效抗衰" }
+            ],
+            'b088cb81c5d9f839260b2cc463855b1': [
+                { name: "瘦脸针", price: "680$", desc: "精准瘦脸，塑造V型轮廓" },
+                { name: "瘦腿针", price: "298$", desc: "非手术瘦腿方案" }
+            ],
+            'd7a9ce9a1f696e7206b7315acc8b3ec': [
+                { name: "光子嫩肤", price: "680$/单次", desc: "改善肤质，提亮肤色" },
+                { name: "皮秒", price: "880$/单次", desc: "高效祛斑美白" }
+            ],
+            'db7c593311a63ade4f90a2b06d7e436': [
+                { name: "全身脱毛", price: "1380$", desc: "持久光滑，包脱无忧" },
+                { name: "比基尼脱毛", price: "698$", desc: "专业私密护理" }
+            ],
+            'de5288dc8139cc99e4765719db6e182': [
+                { name: "妈生唇", price: "580$起", desc: "自然晕染色泽，免日常化妆" },
+                { name: "丝雾眉", price: "680$起", desc: "个性化眉形设计" }
+            ],
+            'e516ce6df134042393fdc6633837961': [
+                { name: "超声炮", price: "1980$", desc: "非侵入式抗衰提拉" },
+                { name: "祛红血丝", price: "680$", desc: "改善面部泛红" }
+            ]
+        };
+
+        // 浏览记录存储
+        let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
+
+        // 初始化画廊
+        function initGallery() {
+            const gallery = document.getElementById('galleryContainer');
+            gallery.innerHTML = Object.keys(projects).map(file => `
+                <div class="gallery-item">
+                    <img data-src="./images/${file}.jpg" 
+                         class="gallery-img" 
+                         alt="项目图片"
+                         onclick="showFullscreen('./images/${file}.jpg')">
+                    <div class="btn-container">
+                        <button class="detail-btn" onclick="showDetails('${file}')">
+                            查看项目特点
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            initLazyLoad();
+        }
+
+        // 图片懒加载
+        function initLazyLoad() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.onload = () => {
+                            img.style.opacity = 1;
+                            img.removeAttribute('data-src');
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, { 
+                rootMargin: '200px',
+                threshold: 0.01 
+            });
+
+            document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
+                observer.observe(img);
+            });
+        }
+
+        // 全屏查看功能
+        function showFullscreen(imgSrc) {
+            const modal = document.getElementById('fullscreenModal');
+            const img = document.getElementById('fullscreenImg');
+            img.src = imgSrc;
+            modal.style.display = 'flex';
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenModal').style.display = 'none';
+        }
+
+        // 显示项目详情
+        function showDetails(fileKey) {
+            // 保存浏览记录
+            const timestamp = new Date().toLocaleString();
+            browseHistory = [{fileKey, timestamp}, ...browseHistory.slice(0, 9)];
+            localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
+
+            const modal = document.getElementById('detailModal');
+            const content = projects[fileKey].map(item => `
+                <div class="project-item">
+                    <div class="project-title">${item.name}</div>
+                    <div class="project-price">💰 价格：${item.price}</div>
+                    <div class="project-desc">✅ ${item.desc}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('modalContent').innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                const keyword = searchInput.value.trim().toLowerCase();
+                const allItems = document.querySelectorAll('.gallery-item');
+                
+                allItems.forEach((item, index) => {
+                    const fileKey = Object.keys(projects)[index];
+                    const match = projects[fileKey].some(item => 
+                        item.name.toLowerCase().includes(keyword) || 
+                        item.desc.toLowerCase().includes(keyword)
+                    );
+                    item.style.display = match ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // 初始化
+        window.onload = () => {
+            initGallery();
+            initSearch();
+        };
+
+        // 点击外部关闭弹窗
+        window.onclick = function(e) {
+            if (e.target.classList.contains('detail-modal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

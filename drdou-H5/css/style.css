@@ -1,0 +1,7 @@
+.gallery-item {
+    aspect-ratio: 1/1; /* 强制正方形 */
+}
+.gallery-img {
+    height: 80%; /* 优化图片显示区域 */
+    cursor: pointer; /* 显示可点击状态 */
+}
