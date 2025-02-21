@@ -1,427 +1,333 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DR·DOU医美中心</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Helvetica Neue', sans-serif;
-        }
-
-        body {
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        /* 搜索框 */
-        .search-box {
-            padding: 15px;
-            background: white;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #FFB6C1;
-            border-radius: 25px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        /* 图片画廊 */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 15px;
-            padding: 15px;
-        }
-
-        .gallery-item {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            aspect-ratio: 1/1; /* 正方形比例 */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .gallery-img {
-            width: 100%;
-            height: 80%;
-            object-fit: cover;
-            background: #f8f8f8;
-            transition: opacity 0.3s;
-            cursor: pointer;
-        }
-
-        .gallery-img[data-src] {
-            opacity: 0;
-        }
-
-        /* 按钮容器 */
-        .btn-container {
-            padding: 10px;
-            height: 20%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .detail-btn {
-            width: 90%;
-            padding: 10px;
-            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
-
-        .detail-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* 全屏查看 */
-        .fullscreen-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .fullscreen-img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            animation: modalShow 0.3s;
-        }
-
-        /* 详情弹窗 */
-        .detail-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 999;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            max-width: 500px;
-            margin: 20px auto;
-            position: relative;
-            animation: modalShow 0.3s;
-        }
-
-        @keyframes modalShow {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .close-btn {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        /* 项目详情样式 */
-        .project-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fff5f7;
-            border-radius: 8px;
-        }
-
-        .project-title {
-            color: #FF69B4;
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .project-price {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .project-desc {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #444;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DR·DOU专业医美服务平台，提供抗衰老、微整形等轻医美解决方案">
+  <title>DR·DOU医美中心</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Helvetica Neue', sans-serif; }
+    body { background:#f5f5f5; color:#333; }
+    .search-box { padding:15px; background:#fff; position:sticky; top:0; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    #searchInput { width:100%; padding:12px; border:2px solid #FFB6C1; border-radius:25px; font-size:14px; outline:none; }
+    .gallery { display:grid; grid-template-columns:repeat(1, 1fr); gap:15px; padding:15px; }
+    .gallery-item {
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      aspect-ratio:3/2;
+      display:flex;
+      flex-direction:column;
+    }
+    .gallery-item picture { flex: 3; }
+    .gallery-img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#f8f8f8;
+      transition:opacity 0.3s;
+      cursor:pointer;
+    }
+    .btn-container {
+      flex: 1;
+      padding:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:60px;
+    }
+    .detail-btn {
+      width:90%;
+      padding:12px;
+      background:linear-gradient(135deg, #FFB6C1, #FF69B4);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:14px;
+      transition:transform 0.2s;
+      min-height:44px;
+      position:relative;
+      z-index:1;
+    }
+    .detail-btn:active { transform:scale(0.95); }
+    .fullscreen-modal {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.9);
+      z-index:1002;
+      justify-content:center;
+      align-items:center;
+    }
+    .fullscreen-img {
+      max-width:90%;
+      max-height:90%;
+      object-fit:contain;
+      animation:modalShow 0.3s;
+    }
+    @keyframes modalShow { from { transform:scale(0.9); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .detail-modal {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.9);
+      z-index:1001;
+      padding:20px;
+      overflow-y:auto;
+    }
+    .modal-content {
+      background:#fff;
+      border-radius:12px;
+      padding:25px;
+      max-width:500px;
+      margin:20px auto;
+      position:relative;
+      animation:modalShow 0.3s;
+    }
+    .close-btn {
+      position:absolute;
+      right:20px;
+      top:15px;
+      font-size:28px;
+      cursor:pointer;
+      color:#666;
+    }
+    .project-item { margin-bottom:20px; padding:15px; background:#fff5f7; border-radius:8px; }
+    .project-title { color:#FF69B4; font-weight:bold; font-size:16px; margin-bottom:6px; }
+    .project-price { color:#666; font-size:14px; margin-bottom:10px; }
+    .project-desc { font-size:14px; line-height:1.5; color:#444; }
+  </style>
 </head>
 <body>
-    <!-- 搜索框 -->
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 搜索项目名称或点击图片查看大图...">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 搜索项目名称或点击图片查看大图...">
+  </div>
+  <div class="gallery" id="galleryContainer"></div>
+  <div class="fullscreen-modal" id="fullscreenModal" onclick="closeFullscreen()">
+    <img class="fullscreen-img" id="fullscreenImg" src="" alt="全屏图片">
+  </div>
+  <div class="detail-modal" id="detailModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">×</span>
+      <div id="modalContent"></div>
     </div>
+  </div>
+  <script>
+    // 完整项目数据
+    const projects = {
+      '2d269f2caf9224858e256246fb5d264': [
+        { name: "6G复位术", price: "2980$", desc: "采用第六代提拉技术，深层复位筋膜层，提升面部轮廓，改善松弛下垂，长效维持年轻立体感" },
+        { name: "埋式避孕", price: "398$", desc: "长效无创避孕方案，操作便捷，安全性高" },
+        { name: "甜美酒窝", price: "680$", desc: "个性化定制酒窝形态，自然灵动，无痕微创，增强面部甜美气质，术后恢复快" },
+        { name: "美白针", price: "680$", desc: "进口活性成分（谷胱甘肽、传明酸），抑制黑色素生成，全身性亮白透亮，改善暗沉/色斑/肤色不均" },
+        { name: "乳晕粉嫩", price: "980$", desc: "激光或生物嫩红技术，淡化乳晕色素沉淀，恢复粉嫩自然色泽，提升私密部位美观度" },
+        { name: "私密粉嫩", price: "1280$", desc: "专业激光或温和酸类焕肤，安全淡化私密区域暗沉，紧致保湿，增强自信与亲密体验" },
+        { name: "黄金大V线雕", price: "1680$/198$单根", desc: "24K黄金线材植入，强力提拉颧骨至下巴V型线，抗衰+塑形双效，单根精准调整局部松弛" },
+        { name: "埋线双眼皮", price: "680$", desc: "可吸收蛋白线无痕成型，自然双眼皮褶皱，恢复期短，附带植发/美牙/私密紧致套餐，性价比高" }
+      ],
+      '930f498d0a8d5980ae2ca4e7c1acb0c': [
+        { name: "丰耳垂", price: "168$起", desc: "玻尿酸填充塑造饱满耳垂，改善耳垂扁平/干瘪，提升面部福相感，微创即刻见效" },
+        { name: "水光针", price: "198$起", desc: "透明质酸+营养液深层渗透，强效补水锁水，改善干燥粗糙，提亮暗沉肌，恢复水光透亮感" },
+        { name: "溶脂针", price: "298$起", desc: "靶向溶解局部脂肪（如双下巴、腰腹），无创塑形紧致，适合顽固脂肪堆积人群" },
+        { name: "狐臭针", price: "188$起", desc: "肉毒素抑制大汗腺分泌，长效减少腋下异味，无恢复期，适合多汗症或体味困扰者" },
+        { name: "丰太阳穴", price: "168$起", desc: "填充太阳穴凹陷，重塑面部流畅轮廓，改善颧骨突出显老问题，打造年轻饱满感" },
+        { name: "嘟嘟唇", price: "168$起", desc: "玻尿酸立体塑唇，增加唇部饱满度，修饰唇形（如M唇、微笑唇），打造自然丰盈果冻唇" },
+        { name: "祛疱针", price: "128$起", desc: "针对性修复皮肤损伤（如痘坑、疤痕），促进胶原再生，平滑肤质，恢复健康肌肤状态" },
+        { name: "祛颈纹", price: "380$起", desc: "玻尿酸/胶原蛋白填充颈纹，淡化横向纹路，紧致颈部肌肤，提升优雅天鹅颈线条" },
+        { name: "颈阔肌", price: "380$起", desc: "肉毒素放松颈阔肌，改善“火鸡脖”松弛，清晰下颌线，打造纤细紧致颈部轮廓" },
+        { name: "熊猫针", price: "398$起", desc: "专研配方填充泪沟+黑眼圈，改善眼周暗沉凹陷，提亮“熊猫眼”，焕发年轻神采" }
+      ],
+      '5851f5af710b5fecc2d517bd048a47e': [
+        { name: "韩国胶原蛋白", price: "598$", desc: "高纯度胶原蛋白填充，修复肌肤弹性，改善皱纹/凹陷，自然饱满，适合面部轮廓重塑及抗初老需求" },
+        { name: "弗曼", price: "1280$", desc: "长效交联玻尿酸，支撑力强，深层填充鼻基底/法令纹，提升骨相立体感，效果维持12-18个月以上" },
+        { name: "台湾双美", price: "1280$", desc: "双美胶原蛋白植入剂，刺激自体胶原再生，同步改善肤质+填充塑形，适合泪沟/苹果肌等精细部位" },
+        { name: "微绮美", price: "680$", desc: "中分子玻尿酸，性价比高，适用于软组织填充（如嘴唇、面颊），打造自然柔润的年轻化效果" },
+        { name: "乔雅登", price: "680$", desc: "全球知名玻尿酸品牌，高粘弹性材质，精准塑形鼻梁/下巴，抗位移性强，效果自然持久" },
+        { name: "贴骨针", price: "680$", desc: "骨膜层定点注射，紧致提拉下颌线，改善双下巴/轮廓模糊，打造“贴骨”小V脸，恢复期短" },
+        { name: "婴儿针", price: "680$", desc: "多肽复合营养液，激活细胞再生，修复敏感肌/痘坑，恢复婴儿般细腻肤质，适合轻熟肌抗衰" },
+        { name: "少女针", price: "1380$", desc: "PCL微球+凝胶载体，持续刺激胶原增生，填充+抗衰双效合一，打造少女感嘭弹苹果肌" },
+        { name: "伊颜仕", price: "2580$", desc: "高端再生（如PLLA），渐进式提升面部紧致度，长效抗衰（2年以上），适合深度松弛肌" },
+        { name: "超强溶脂针", price: "680$", desc: "高浓度脱氧胆酸配方，强效溶解顽固脂肪（如腰腹/大腿），收紧皮肤，适合局部肥胖塑形需求" },
+        { name: "丰体针（胸、屁股）", price: "980$/袋 1280$/袋", desc: "自体脂肪或生物填充剂丰胸/丰臀，安全塑形，提升身体曲线，可选不同剂量满足个性化需求" },
+        { name: "溶解酶", price: "100$", desc: "快速分解玻尿酸填充物，修正注射过量或位置偏差，灵活调整塑形效果，恢复期仅需1-2天" },
+        { name: "万能溶解针", price: "200$", desc: "广谱酶制剂，可溶解多种填充材料（如胶原蛋白、PLLA），应对复杂修复需求，安全高效" }
+      ],
+      'b088cb81c5d9f839260b2cc463855b1': [
+        { name: "瘦脸针（韩国品牌）", price: "168$", desc: "紧致消瘦面部多余脂肪，紧致小V脸，效果良好自然" },
+        { name: "瘦脸针（保妥运）", price: "680$", desc: "国际认证A型肉毒，精准松弛咬肌，缩小下面部宽度，打造精致小V脸，效果自然持久" },
+        { name: "瘦肩针（恒力）", price: "398$", desc: "注射斜方肌，缓解肩颈肌肉紧张，视觉拉长颈部线条，塑造直角肩，提升体态轻盈感" },
+        { name: "瘦腿针（绿毒）", price: "298$", desc: "韩国绿毒肉毒，温和缩小腓肠肌，改善肌肉型小腿粗壮，塑造纤细腿型，适合运动型腿粗人群" },
+        { name: "全脸祛皱（恒力）", price: "398$", desc: "多部位动态纹注射（如抬头纹、鱼尾纹），抑制肌肉收缩，平滑皱纹，恢复年轻自然表情" },
+        { name: "玻尿酸（丝力）", price: "498$", desc: "中分子玻尿酸，适合填充法令纹、苹果肌，性价比高，触感柔软，塑形自然不僵硬" },
+        { name: "玻尿酸（乔雅登）", price: "680$", desc: "全球高端玻尿酸品牌，高交联度强支撑力，精准塑形鼻梁/下巴，抗移位性强，效果维持12-18个月以上" },
+        { name: "春天/贝拉", price: "168$", desc: "韩国进口，复配营养液深层补水，提亮暗沉肌，改善粗糙毛孔，打造春日般透亮光泽" },
+        { name: "艾利薇", price: "298$", desc: "高性价比玻尿酸，适用于浅层填充（如泪沟、唇纹），温和补水保湿，适合年轻肌肤微调" }                
+      ],
+      'd7a9ce9a1f696e7206b7315acc8b3ec': [
+        { name: "清洁", price: "98$", desc: "深层清洁毛孔，去除油脂污垢，预防黑头粉刺，适合油皮/化妆人群" },
+        { name: "补水", price: "98$", desc: "高效保湿锁水，缓解干燥紧绷，提升肌肤水润透亮感，适合干皮/换季敏感肌" },
+        { name: "青瓜面膜", price: "68$", desc: "天然青瓜舒缓镇静，降温消炎，收缩毛孔，适合晒后修复或敏感泛红肌肤" },
+        { name: "祛痘消炎", price: "128$", desc: "针对性抑制痤疮杆菌，快速消炎退红，减少痘痘反复，适合痘肌/炎症性皮肤" },
+        { name: "肌肤心片", price: "168$", desc: "定制化护理方案，精准修复肌底问题（如屏障受损、暗沉），提升肌肤健康度" },
+        { name: "面膜经络", price: "98$", desc: "结合面膜与穴位按摩，促进吸收+疏通经络，改善气色暗沉与代谢缓慢" },
+        { name: "大气泡", price: "128$", desc: "强效吸附毛孔深层污垢，去除老化角质，改善黑头闭口，适合混合皮/粗糙肌" },
+        { name: "小气泡", price: "68$", desc: "温和清洁+注氧补水，提亮肤色，适合日常维护或敏感肌基础护理" },
+        { name: "淋巴排毒", price: "68$", desc: "手法按摩促进淋巴循环，加速代谢排毒，缓解水肿疲劳，增强免疫力" },
+        { name: "刮痧", price: "38$", desc: "传统刮痧疏通经络，改善局部循环，缓解肩颈僵硬，提升面部气色" },
+        { name: "采耳", price: "26$", desc: "专业工具清洁耳道，舒缓神经压力，提供放松解压体验" },
+        { name: "私密SPA", price: "168$", desc: "隐私部位专业护理，温和清洁+紧致保湿，维护私密健康，适合产后修复或日常保养" },
+        { name: "内检", price: "38$", desc: "基础妇科检查服务，快速了解身体状况，提供健康建议" },
+        { name: "胸部按摩", price: "98$", desc: "疏通乳腺经络，缓解胀痛不适，促进血液循环，提升胸部紧致度" },
+        { name: "卵巢保养", price: "68$", desc: "腹部穴位按摩调理，改善宫寒、经期不适，帮助平衡内分泌，适合女性周期护理" },
+        { name: "祛黄提亮", price: "128$/单次", desc: "针对性分解黑色素，改善暗沉蜡黄，即刻提亮肤色，适合熬夜肌/肤色不均" },
+        { name: "祛黄提亮 1疗程", price: "880$", desc: "疗程式密集护理，从根源抑制黑色素生成，长效焕白，打造通透亮泽肌" },
+        { name: "光子嫩肤", price: "680$/单次", desc: "广谱光能改善色斑、红血丝，刺激胶原新生，单次见效，适合急救焕肤" },
+        { name: "光子嫩肤 年套餐", price: "2380$/年", desc: "全年定期维护，持续淡化瑕疵、细腻肤质，性价比高，适合长期抗衰需求" },
+        { name: "皮秒 配分解液", price: "880$/单次", desc: "超短脉冲精准击碎色素，配合分解液代谢残留，高效祛斑嫩肤，适合顽固色斑/痘印肌" }
+      ],
+      'db7c593311a63ade4f90a2b06d7e436': [
+        { name: "唇毛", price: "38-98$", desc: "精准去除细小唇周绒毛，无痛快速，避免尴尬“小胡子”，打造干净裸妆感，适合女性日常精致护理" },
+        { name: "腋毛", price: "88-198$", desc: "温和脱除腋下毛发，减少摩擦刺激，提升清爽感，包脱价性价比高，适合夏季无袖穿搭或运动人群" },
+        { name: "发际线", price: "88-198$", desc: "重塑发际线轮廓，柔和过渡边缘，修饰脸型，包脱价长效维持，适合发际线后移或追求自然鬓角者忧" },
+        { name: "全脸脱毛", price: "98-398$", desc: "全面覆盖面部（含额头、脸颊、下巴），告别细小绒毛，提亮肤色，包脱价适合追求素颜通透肌人群" },
+        { name: "小手脱毛", price: "68-198$", desc: "脱除手背及手指局部毛发，精细操作不伤皮肤，提升手部细腻感，适合礼仪/婚庆等场合需求" },
+        { name: "全手脱毛", price: "88-298$", desc: "彻底清洁手臂至指尖毛发，光滑无死角，长效维持，包脱价适合需长期展现手部美观的职业（如模特）" },
+        { name: "小腿脱毛", price: "68-198$", desc: "针对性脱除小腿毛发，减少毛囊炎风险，光滑肌肤，包脱价适合裙装爱好者或健身人群" },
+        { name: "全腿脱毛", price: "98-398$", desc: "从大腿到脚踝全面脱毛，省时省力，包脱价长效光滑，适合追求全身肌肤一体感的精致女性" },
+        { name: "比基尼脱毛", price: "168-698$", desc: "隐私部位专属护理，安全无痛脱毛，提升自信与舒适度，包脱价适合泳装季节或亲密关系维护需求" },
+        { name: "男士胡子", price: "168-698$", desc: "精准软化胡须根部，抑制毛发生长，避免剃须损伤，包脱价长效清爽，适合需频繁剃须或追求干净形象的男性" },
+        { name: "全身脱毛", price: "380-1380$", desc: "一站式脱除全身各部位毛发（含四肢、躯干），省心高效，包脱价性价比极高，适合长期维护光滑肌肤者" }
+      ],
+      'de5288dc8139cc99e4765719db6e182': [
+        { name: "妈生唇", price: "580$起", desc: "仿若天生的自然唇色，微调唇形不露痕迹，打造原生柔润感，适合追求裸妆效果或唇色暗沉者" },
+        { name: "欧洲唇", price: "980$起", desc: "立体唇峰+饱满唇线设计，融合欧式审美，增强唇部轮廓感，适合喜欢精致明艳妆效的时尚人群" },
+        { name: "仿真眉", price: "880$起", desc: "根根分明的毛发质感，精准还原原生眉流走向，逼真自然，适合毛发稀疏或追求野生眉效果者" },
+        { name: "雾眉", price: "580$起", desc: "柔雾渐变眉色，无框感朦胧效果，修饰眉形缺陷，适合日常通勤或素颜提气色需求" },
+        { name: "丝雾眉", price: "680$起", desc: "线条+雾感双效结合，既有毛发细节又有柔和过渡，适配多种妆容风格，适合追求层次感的进阶用户" },
+        { name: "韩式美瞳线", price: "380$起", desc: "内眼睑隐形提亮，自然放大双眼，无妆感却显神采，适合敏感眼型或追求素颜灵动效果者计" }
+      ],
+      'e516ce6df134042393fdc6633837961': [
+        { name: "超M22 光子嫩肤", price: "580$", desc: "广谱光能多效改善（色斑、红血丝、毛孔粗大），提亮肤色，单次见效，适合急救焕肤与长期维养" },
+        { name: "超皮秒", price: "580$", desc: "超短脉冲精准击碎色素，祛斑+嫩肤双效合一，恢复期短，适合顽固色斑/痘印肌及追求快速美肌人群" },
+        { name: "无创洗眉", price: "580$", desc: "激光无创分解色素，安全清除失败半永久眉，不损伤毛囊，修复后可重新定妆，适合眉形修正需求" },
+        { name: "无创洗纹身", price: "380$", desc: "分次淡化多种颜色纹身，分层清除色素，避免疤痕生成，适合需去除旧纹身或修正图案者" },
+        { name: "星耀超V超声炮", price: "1980$", desc: "聚焦超声波分层加热SMAS筋膜层，提拉松弛下垂肌肤，长效紧致轮廓，适合中重度抗衰需求" },
+        { name: "祛红血丝", price: "680$", desc: "靶向封闭扩张毛细血管，改善面部潮红/血丝，增强肌肤屏障，适合敏感肌或玫瑰痤疮患者" },
+        { name: "精油推背", price: "98$", desc: "植物精油渗透+手法按摩，舒缓肩颈僵硬，缓解疲劳焦虑，适合久坐办公或长期压力大的人群" },
+        { name: "干按推背", price: "68$", desc: "纯手法穴位点压，疏通膀胱经/督脉，排毒祛湿，缓解腰背酸痛，适合注重经络调理的养生群体" },
+        { name: "经络油全身推背", price: "168$", desc: "全身经络疏通+精油渗透，促进血液循环，调理气血失衡，改善手脚冰凉，适合亚健康状态综合调理" }
+      ]
+    };
 
-    <!-- 图片画廊 -->
-    <div class="gallery" id="galleryContainer"></div>
+    let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
 
-    <!-- 全屏查看弹窗 -->
-    <div class="fullscreen-modal" id="fullscreenModal" onclick="closeFullscreen()">
-        <img class="fullscreen-img" id="fullscreenImg" src="" alt="全屏图片">
-    </div>
-
-    <!-- 详情弹窗 -->
-    <div class="detail-modal" id="detailModal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">×</span>
-            <div id="modalContent"></div>
+    function initGallery() {
+      const gallery = document.getElementById('galleryContainer');
+      gallery.innerHTML = Object.keys(projects).map(file => `
+        <div class="gallery-item">
+          <picture>
+            <source srcset="./images/${file}.webp" type="image/webp">
+            <img 
+              data-src="./images/${file}.jpg"
+              loading="lazy"
+              class="gallery-img"
+              alt="项目图片"
+              onclick="showFullscreen('./images/${file}.jpg')"
+              onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" fill=\"%23ccc\">图片加载失败</text></svg>'"
+            >
+          </picture>
+          <div class="btn-container">
+            <button class="detail-btn" onclick="showDetails('${file}')">查看项目特点</button>
+          </div>
         </div>
-    </div>
+      `).join('');
+      initLazyLoad();
+    }
 
-    <script>
-        // 完整项目数据
-        const projects = {
-            '2d269f2caf9224858e256246fb5d264': [
-                { name: "6G复位术", price: "2980$", desc: "采用第六代提拉技术，深层复位筋膜层，提升面部轮廓，改善松弛下垂，长效维持年轻立体感" },
-                { name: "埋式避孕", price: "398$", desc: "长效无创避孕方案，操作便捷，安全性高" },
-                { name: "甜美酒窝", price: "680$", desc: "个性化定制酒窝形态，自然灵动，无痕微创，增强面部甜美气质，术后恢复快" },
-                { name: "美白针", price: "680$", desc: "进口活性成分（谷胱甘肽、传明酸），抑制黑色素生成，全身性亮白透亮，改善暗沉/色斑/肤色不均" },
-                { name: "乳晕粉嫩", price: "980$", desc: "激光或生物嫩红技术，淡化乳晕色素沉淀，恢复粉嫩自然色泽，提升私密部位美观度" },
-                { name: "私密粉嫩", price: "1280$", desc: "专业激光或温和酸类焕肤，安全淡化私密区域暗沉，紧致保湿，增强自信与亲密体验" },
-                { name: "黄金大V线雕", price: "1680$/198$单根", desc: "24K黄金线材植入，强力提拉颧骨至下巴V型线，抗衰+塑形双效，单根精准调整局部松弛" },
-                { name: "埋线双眼皮", price: "680$", desc: "可吸收蛋白线无痕成型，自然双眼皮褶皱，恢复期短，附带植发/美牙/私密紧致套餐，性价比高" }
-            ],
-            '930f498d0a8d5980ae2ca4e7c1acb0c': [
-                { name: "丰耳垂", price: "168$起", desc: "玻尿酸填充塑造饱满耳垂，改善耳垂扁平/干瘪，提升面部福相感，微创即刻见效" },
-                { name: "水光针", price: "198$起", desc: "透明质酸+营养液深层渗透，强效补水锁水，改善干燥粗糙，提亮暗沉肌，恢复水光透亮感" },
-                { name: "溶脂针", price: "298$起", desc: "靶向溶解局部脂肪（如双下巴、腰腹），无创塑形紧致，适合顽固脂肪堆积人群" },
-                { name: "狐臭针", price: "188$起", desc: "肉毒素抑制大汗腺分泌，长效减少腋下异味，无恢复期，适合多汗症或体味困扰者" },
-                { name: "丰太阳穴", price: "168$起", desc: "填充太阳穴凹陷，重塑面部流畅轮廓，改善颧骨突出显老问题，打造年轻饱满感" },
-                { name: "嘟嘟唇", price: "168$起", desc: "玻尿酸立体塑唇，增加唇部饱满度，修饰唇形（如M唇、微笑唇），打造自然丰盈果冻唇" },
-                { name: "祛疱针", price: "128$起", desc: "针对性修复皮肤损伤（如痘坑、疤痕），促进胶原再生，平滑肤质，恢复健康肌肤状态" },
-                { name: "祛颈纹", price: "380$起", desc: "玻尿酸/胶原蛋白填充颈纹，淡化横向纹路，紧致颈部肌肤，提升优雅天鹅颈线条" },
-                { name: "颈阔肌", price: "380$起", desc: "肉毒素放松颈阔肌，改善“火鸡脖”松弛，清晰下颌线，打造纤细紧致颈部轮廓" },
-                { name: "熊猫针", price: "398$起", desc: "专研配方填充泪沟+黑眼圈，改善眼周暗沉凹陷，提亮“熊猫眼”，焕发年轻神采" }
-            ],
-            '5851f5af710b5fecc2d517bd048a47e': [
-                { name: "韩国胶原蛋白", price: "598$", desc: "高纯度胶原蛋白填充，修复肌肤弹性，改善皱纹/凹陷，自然饱满，适合面部轮廓重塑及抗初老需求" },
-                { name: "弗曼", price: "1280$", desc: "长效交联玻尿酸，支撑力强，深层填充鼻基底/法令纹，提升骨相立体感，效果维持12-18个月以上" },
-                { name: "台湾双美", price: "1280$", desc: "双美胶原蛋白植入剂，刺激自体胶原再生，同步改善肤质+填充塑形，适合泪沟/苹果肌等精细部位" },
-                { name: "微绮美", price: "680$", desc: "中分子玻尿酸，性价比高，适用于软组织填充（如嘴唇、面颊），打造自然柔润的年轻化效果" },
-                { name: "乔雅登", price: "680$", desc: "全球知名玻尿酸品牌，高粘弹性材质，精准塑形鼻梁/下巴，抗位移性强，效果自然持久" },
-                { name: "贴骨针", price: "680$", desc: "骨膜层定点注射，紧致提拉下颌线，改善双下巴/轮廓模糊，打造“贴骨”小V脸，恢复期短" },
-                { name: "婴儿针", price: "680$", desc: "多肽复合营养液，激活细胞再生，修复敏感肌/痘坑，恢复婴儿般细腻肤质，适合轻熟肌抗衰" },
-                { name: "少女针", price: "1380$", desc: "PCL微球+凝胶载体，持续刺激胶原增生，填充+抗衰双效合一，打造少女感嘭弹苹果肌" },
-                { name: "伊颜仕", price: "2580$", desc: "高端再生（如PLLA），渐进式提升面部紧致度，长效抗衰（2年以上），适合深度松弛肌" },
-                { name: "超强溶脂针", price: "680$", desc: "高浓度脱氧胆酸配方，强效溶解顽固脂肪（如腰腹/大腿），收紧皮肤，适合局部肥胖塑形需求" },
-                { name: "丰体针（胸、屁股）", price: "980$/袋 1280$/袋", desc: "自体脂肪或生物填充剂丰胸/丰臀，安全塑形，提升身体曲线，可选不同剂量满足个性化需求" },
-                { name: "溶解酶", price: "100$", desc: "快速分解玻尿酸填充物，修正注射过量或位置偏差，灵活调整塑形效果，恢复期仅需1-2天" },
-                { name: "万能溶解针", price: "200$", desc: "广谱酶制剂，可溶解多种填充材料（如胶原蛋白、PLLA），应对复杂修复需求，安全高效" }
-            ],
-            'b088cb81c5d9f839260b2cc463855b1': [
-                { name: "瘦脸针（韩国品牌）", price: "168$", desc: "紧致消瘦面部多余脂肪，紧致小V脸，效果良好自然" },
-                { name: "瘦脸针（保妥运）", price: "680$", desc: "国际认证A型肉毒，精准松弛咬肌，缩小下面部宽度，打造精致小V脸，效果自然持久" },
-                { name: "瘦肩针（恒力）", price: "398$", desc: "注射斜方肌，缓解肩颈肌肉紧张，视觉拉长颈部线条，塑造直角肩，提升体态轻盈感" },
-                { name: "瘦腿针（绿毒）", price: "298$", desc: "韩国绿毒肉毒，温和缩小腓肠肌，改善肌肉型小腿粗壮，塑造纤细腿型，适合运动型腿粗人群" },
-                { name: "全脸祛皱（恒力）", price: "398$", desc: "多部位动态纹注射（如抬头纹、鱼尾纹），抑制肌肉收缩，平滑皱纹，恢复年轻自然表情" },
-                { name: "玻尿酸（丝力）", price: "498$", desc: "中分子玻尿酸，适合填充法令纹、苹果肌，性价比高，触感柔软，塑形自然不僵硬" },
-                { name: "玻尿酸（乔雅登）", price: "680$", desc: "全球高端玻尿酸品牌，高交联度强支撑力，精准塑形鼻梁/下巴，抗移位性强，效果维持12-18个月以上" },
-                { name: "春天/贝拉", price: "168$", desc: "韩国进口，复配营养液深层补水，提亮暗沉肌，改善粗糙毛孔，打造春日般透亮光泽" },
-                { name: "艾利薇", price: "298$", desc: "高性价比玻尿酸，适用于浅层填充（如泪沟、唇纹），温和补水保湿，适合年轻肌肤微调" }                
-            ],
-            'd7a9ce9a1f696e7206b7315acc8b3ec': [
-                { name: "清洁", price: "98$", desc: "深层清洁毛孔，去除油脂污垢，预防黑头粉刺，适合油皮/化妆人群" },
-                { name: "补水", price: "98$", desc: "高效保湿锁水，缓解干燥紧绷，提升肌肤水润透亮感，适合干皮/换季敏感肌" },
-                { name: "青瓜面膜", price: "68$", desc: "天然青瓜舒缓镇静，降温消炎，收缩毛孔，适合晒后修复或敏感泛红肌肤" },
-                { name: "祛痘消炎", price: "128$", desc: "针对性抑制痤疮杆菌，快速消炎退红，减少痘痘反复，适合痘肌/炎症性皮肤" },
-                { name: "肌肤心片", price: "168$", desc: "定制化护理方案，精准修复肌底问题（如屏障受损、暗沉），提升肌肤健康度" },
-                { name: "面膜经络", price: "98$", desc: "结合面膜与穴位按摩，促进吸收+疏通经络，改善气色暗沉与代谢缓慢" },
-                { name: "大气泡", price: "128$", desc: "强效吸附毛孔深层污垢，去除老化角质，改善黑头闭口，适合混合皮/粗糙肌" },
-                { name: "小气泡", price: "68$", desc: "温和清洁+注氧补水，提亮肤色，适合日常维护或敏感肌基础护理" },
-                { name: "淋巴排毒", price: "68$", desc: "手法按摩促进淋巴循环，加速代谢排毒，缓解水肿疲劳，增强免疫力" },
-                { name: "刮痧", price: "38$", desc: "传统刮痧疏通经络，改善局部循环，缓解肩颈僵硬，提升面部气色" },
-                { name: "采耳", price: "26$", desc: "专业工具清洁耳道，舒缓神经压力，提供放松解压体验" },
-                { name: "私密SPA", price: "168$", desc: "隐私部位专业护理，温和清洁+紧致保湿，维护私密健康，适合产后修复或日常保养" },
-                { name: "内检", price: "38$", desc: "基础妇科检查服务，快速了解身体状况，提供健康建议" },
-                { name: "胸部按摩", price: "98$", desc: "疏通乳腺经络，缓解胀痛不适，促进血液循环，提升胸部紧致度" },
-                { name: "卵巢保养", price: "68$", desc: "腹部穴位按摩调理，改善宫寒、经期不适，帮助平衡内分泌，适合女性周期护理" },
-                { name: "祛黄提亮", price: "128$/单次", desc: "针对性分解黑色素，改善暗沉蜡黄，即刻提亮肤色，适合熬夜肌/肤色不均" },
-                { name: "祛黄提亮 1疗程", price: "880$", desc: "疗程式密集护理，从根源抑制黑色素生成，长效焕白，打造通透亮泽肌" },
-                { name: "光子嫩肤", price: "680$/单次", desc: "广谱光能改善色斑、红血丝，刺激胶原新生，单次见效，适合急救焕肤" },
-                { name: "光子嫩肤 年套餐", price: "2380$/年", desc: "全年定期维护，持续淡化瑕疵、细腻肤质，性价比高，适合长期抗衰需求" },
-                { name: "皮秒 配分解液", price: "880$/单次", desc: "超短脉冲精准击碎色素，配合分解液代谢残留，高效祛斑嫩肤，适合顽固色斑/痘印肌" }
-            ],
-            'db7c593311a63ade4f90a2b06d7e436': [
-                { name: "唇毛", price: "38-98$", desc: "精准去除细小唇周绒毛，无痛快速，避免尴尬“小胡子”，打造干净裸妆感，适合女性日常精致护理" },
-                { name: "腋毛", price: "88-198$", desc: "温和脱除腋下毛发，减少摩擦刺激，提升清爽感，包脱价性价比高，适合夏季无袖穿搭或运动人群" },
-                { name: "发际线", price: "88-198$", desc: "重塑发际线轮廓，柔和过渡边缘，修饰脸型，包脱价长效维持，适合发际线后移或追求自然鬓角者忧" },
-                { name: "全脸脱毛", price: "98-398$", desc: "全面覆盖面部（含额头、脸颊、下巴），告别细小绒毛，提亮肤色，包脱价适合追求素颜通透肌人群" },
-                { name: "小手脱毛", price: "68-198$", desc: "脱除手背及手指局部毛发，精细操作不伤皮肤，提升手部细腻感，适合礼仪/婚庆等场合需求" },
-                { name: "全手脱毛", price: "88-298$", desc: "彻底清洁手臂至指尖毛发，光滑无死角，长效维持，包脱价适合需长期展现手部美观的职业（如模特）" },
-                { name: "小腿脱毛", price: "68-198$", desc: "针对性脱除小腿毛发，减少毛囊炎风险，光滑肌肤，包脱价适合裙装爱好者或健身人群" },
-                { name: "全腿脱毛", price: "98-398$", desc: "从大腿到脚踝全面脱毛，省时省力，包脱价长效光滑，适合追求全身肌肤一体感的精致女性" },
-                { name: "比基尼脱毛", price: "168-698$", desc: "隐私部位专属护理，安全无痛脱毛，提升自信与舒适度，包脱价适合泳装季节或亲密关系维护需求" },
-                { name: "男士胡子", price: "168-698$", desc: "精准软化胡须根部，抑制毛发生长，避免剃须损伤，包脱价长效清爽，适合需频繁剃须或追求干净形象的男性" },
-                { name: "全身脱毛", price: "380-1380$", desc: "一站式脱除全身各部位毛发（含四肢、躯干），省心高效，包脱价性价比极高，适合长期维护光滑肌肤者" }
-            ],
-            'de5288dc8139cc99e4765719db6e182': [
-                { name: "妈生唇", price: "580$起", desc: "仿若天生的自然唇色，微调唇形不露痕迹，打造原生柔润感，适合追求裸妆效果或唇色暗沉者" },
-                { name: "欧洲唇", price: "980$起", desc: "立体唇峰+饱满唇线设计，融合欧式审美，增强唇部轮廓感，适合喜欢精致明艳妆效的时尚人群" },
-                { name: "仿真眉", price: "880$起", desc: "根根分明的毛发质感，精准还原原生眉流走向，逼真自然，适合毛发稀疏或追求野生眉效果者" },
-                { name: "雾眉", price: "580$起", desc: "柔雾渐变眉色，无框感朦胧效果，修饰眉形缺陷，适合日常通勤或素颜提气色需求" },
-                { name: "丝雾眉", price: "680$起", desc: "线条+雾感双效结合，既有毛发细节又有柔和过渡，适配多种妆容风格，适合追求层次感的进阶用户" },
-                { name: "韩式美瞳线", price: "380$起", desc: "内眼睑隐形提亮，自然放大双眼，无妆感却显神采，适合敏感眼型或追求素颜灵动效果者计" }
-            ],
-            'e516ce6df134042393fdc6633837961': [
-                { name: "超M22 光子嫩肤", price: "580$", desc: "广谱光能多效改善（色斑、红血丝、毛孔粗大），提亮肤色，单次见效，适合急救焕肤与长期维养" },
-                { name: "超皮秒", price: "580$", desc: "超短脉冲精准击碎色素，祛斑+嫩肤双效合一，恢复期短，适合顽固色斑/痘印肌及追求快速美肌人群" },
-                { name: "无创洗眉", price: "580$", desc: "激光无创分解色素，安全清除失败半永久眉，不损伤毛囊，修复后可重新定妆，适合眉形修正需求" },
-                { name: "无创洗纹身", price: "380$", desc: "分次淡化多种颜色纹身，分层清除色素，避免疤痕生成，适合需去除旧纹身或修正图案者" },
-                { name: "星耀超V超声炮", price: "1980$", desc: "聚焦超声波分层加热SMAS筋膜层，提拉松弛下垂肌肤，长效紧致轮廓，适合中重度抗衰需求" },
-                { name: "祛红血丝", price: "680$", desc: "靶向封闭扩张毛细血管，改善面部潮红/血丝，增强肌肤屏障，适合敏感肌或玫瑰痤疮患者" },
-                { name: "精油推背", price: "98$", desc: "植物精油渗透+手法按摩，舒缓肩颈僵硬，缓解疲劳焦虑，适合久坐办公或长期压力大的人群" },
-                { name: "干按推背", price: "68$", desc: "纯手法穴位点压，疏通膀胱经/督脉，排毒祛湿，缓解腰背酸痛，适合注重经络调理的养生群体" },
-                { name: "经络油全身推背", price: "168$", desc: "全身经络疏通+精油渗透，促进血液循环，调理气血失衡，改善手脚冰凉，适合亚健康状态综合调理" }
-            ]
-        };
-
-        // 浏览记录存储
-        let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
-
-        // 初始化画廊
-        function initGallery() {
-            const gallery = document.getElementById('galleryContainer');
-            gallery.innerHTML = Object.keys(projects).map(file => `
-                <div class="gallery-item">
-                    <img data-src="./images/${file}.jpg" 
-                         class="gallery-img" 
-                         alt="项目图片"
-                         onclick="showFullscreen('./images/${file}.jpg')">
-                    <div class="btn-container">
-                        <button class="detail-btn" onclick="showDetails('${file}')">
-                            查看项目特点
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            
-            initLazyLoad();
-        }
-
-        // 图片懒加载
-        function initLazyLoad() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.onload = () => {
-                            img.style.opacity = 1;
-                            img.removeAttribute('data-src');
-                        }
-                        observer.unobserve(img);
-                    }
-                });
-            }, { 
-                rootMargin: '200px',
-                threshold: 0.01 
-            });
-
-            document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
-                observer.observe(img);
-            });
-        }
-
-        // 全屏查看功能
-        function showFullscreen(imgSrc) {
-            const modal = document.getElementById('fullscreenModal');
-            const img = document.getElementById('fullscreenImg');
-            img.src = imgSrc;
-            modal.style.display = 'flex';
-        }
-
-        function closeFullscreen() {
-            document.getElementById('fullscreenModal').style.display = 'none';
-        }
-
-        // 显示项目详情
-        function showDetails(fileKey) {
-            // 保存浏览记录
-            const timestamp = new Date().toLocaleString();
-            browseHistory = [{fileKey, timestamp}, ...browseHistory.slice(0, 9)];
-            localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
-
-            const modal = document.getElementById('detailModal');
-            const content = projects[fileKey].map(item => `
-                <div class="project-item">
-                    <div class="project-title">${item.name}</div>
-                    <div class="project-price">💰 价格：${item.price}</div>
-                    <div class="project-desc">✅ ${item.desc}</div>
-                </div>
-            `).join('');
-            
-            document.getElementById('modalContent').innerHTML = content;
-            modal.style.display = 'block';
-        }
-
-        // 关闭弹窗
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        // 搜索功能
-        function initSearch() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', () => {
-                const keyword = searchInput.value.trim().toLowerCase();
-                const allItems = document.querySelectorAll('.gallery-item');
-                
-                allItems.forEach((item, index) => {
-                    const fileKey = Object.keys(projects)[index];
-                    const match = projects[fileKey].some(item => 
-                        item.name.toLowerCase().includes(keyword) || 
-                        item.desc.toLowerCase().includes(keyword)
-                    );
-                    item.style.display = match ? 'flex' : 'none';
-                });
-            });
-        }
-
-        // 初始化
-        window.onload = () => {
-            initGallery();
-            initSearch();
-        };
-
-        // 点击外部关闭弹窗
-        window.onclick = function(e) {
-            if (e.target.classList.contains('detail-modal')) {
-                closeModal();
+    function initLazyLoad() {
+      if (!('loading' in HTMLImageElement.prototype)) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+              observer.unobserve(img);
             }
-        }
-    </script>
+          });
+        }, { rootMargin: '200px' });
+
+        document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
+          observer.observe(img);
+        });
+      }
+    }
+
+    function showFullscreen(imgSrc) {
+      const modal = document.getElementById('fullscreenModal');
+      const img = document.getElementById('fullscreenImg');
+      img.src = imgSrc;
+      modal.style.display = 'flex';
+    }
+
+    function closeFullscreen() {
+      document.getElementById('fullscreenModal').style.display = 'none';
+    }
+
+    function showDetails(fileKey) {
+      const timestamp = new Date().toLocaleString();
+      browseHistory = [{ fileKey, timestamp }, ...browseHistory.slice(0, 9)];
+      localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
+      
+      const modal = document.getElementById('detailModal');
+      const content = projects[fileKey].map(item => `
+        <div class="project-item">
+          <div class="project-title">${item.name}</div>
+          <div class="project-price">💰 价格：${item.price}</div>
+          <div class="project-desc">✅ ${item.desc}</div>
+        </div>
+      `).join('');
+      document.getElementById('modalContent').innerHTML = content;
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function initSearch() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', () => {
+        const keyword = searchInput.value.trim().toLowerCase();
+        document.querySelectorAll('.gallery-item').forEach((item, index) => {
+          const fileKey = Object.keys(projects)[index];
+          const match = !keyword || projects[fileKey].some(item =>
+            item.name.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword)
+          );
+          item.style.display = match ? 'flex' : 'none';
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initGallery();
+      initSearch();
+    });
+
+    window.onclick = (e) => {
+      if (e.target.classList.contains('detail-modal')) closeModal();
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeFullscreen();
+      }
+    });
+  </script>
 </body>
 </html>
