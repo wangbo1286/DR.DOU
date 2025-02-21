@@ -20,7 +20,11 @@
       display:flex;
       flex-direction:column;
     }
-    .gallery-item picture { flex: 3; }
+    .gallery-item picture { 
+      flex: 3;
+      position: relative;
+      overflow: hidden;
+    }
     .gallery-img {
       width:100%;
       height:100%;
@@ -36,6 +40,7 @@
       align-items:center;
       justify-content:center;
       min-height:60px;
+      background: #fff;
     }
     .detail-btn {
       width:90%;
@@ -225,109 +230,114 @@
 
     let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
 
-    function initGallery() {
-      const gallery = document.getElementById('galleryContainer');
-      gallery.innerHTML = Object.keys(projects).map(file => `
-        <div class="gallery-item">
-          <picture>
-            <source srcset="./images/${file}.webp" type="image/webp">
-            <img 
-              data-src="./images/${file}.jpg"
-              loading="lazy"
-              class="gallery-img"
-              alt="项目图片"
-              onclick="showFullscreen('./images/${file}.jpg')"
-              onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" fill=\"%23ccc\">图片加载失败</text></svg>'"
-            >
-          </picture>
-          <div class="btn-container">
-            <button class="detail-btn" onclick="showDetails('${file}')">查看项目特点</button>
-          </div>
-        </div>
-      `).join('');
-      initLazyLoad();
-    }
+function initGallery() {
+  const gallery = document.getElementById('galleryContainer');
+  gallery.innerHTML = Object.keys(projects).map(file => `
+    <div class="gallery-item">
+      <picture>
+        <source srcset="./images/${file}.webp" type="image/webp">
+        <img 
+          data-src="./images/${file}.jpg"
+          loading="lazy"
+          class="gallery-img"
+          alt="项目图片"
+          onclick="showFullscreen('./images/${file}.jpg')"
+          onerror="handleImageError(this)"
+        >
+      </picture>
+      <div class="btn-container">
+        <button class="detail-btn" onclick="showDetails('${file}')">查看项目特点</button>
+      </div>
+    </div>
+  `).join('');
+  initLazyLoad();
+}
 
-    function initLazyLoad() {
-      if (!('loading' in HTMLImageElement.prototype)) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              const img = entry.target;
-              img.src = img.dataset.src;
-              img.removeAttribute('data-src');
-              observer.unobserve(img);
-            }
-          });
-        }, { rootMargin: '200px' });
+function handleImageError(img) {
+  img.onerror = null;
+  img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="#f8f8f8"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ccc">图片加载失败</text></svg>';
+}
 
-        document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
-          observer.observe(img);
-        });
-      }
-    }
-
-    function showFullscreen(imgSrc) {
-      const modal = document.getElementById('fullscreenModal');
-      const img = document.getElementById('fullscreenImg');
-      img.src = imgSrc;
-      modal.style.display = 'flex';
-    }
-
-    function closeFullscreen() {
-      document.getElementById('fullscreenModal').style.display = 'none';
-    }
-
-    function showDetails(fileKey) {
-      const timestamp = new Date().toLocaleString();
-      browseHistory = [{ fileKey, timestamp }, ...browseHistory.slice(0, 9)];
-      localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
-      
-      const modal = document.getElementById('detailModal');
-      const content = projects[fileKey].map(item => `
-        <div class="project-item">
-          <div class="project-title">${item.name}</div>
-          <div class="project-price">💰 价格：${item.price}</div>
-          <div class="project-desc">✅ ${item.desc}</div>
-        </div>
-      `).join('');
-      document.getElementById('modalContent').innerHTML = content;
-      modal.style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('detailModal').style.display = 'none';
-    }
-
-    function initSearch() {
-      const searchInput = document.getElementById('searchInput');
-      searchInput.addEventListener('input', () => {
-        const keyword = searchInput.value.trim().toLowerCase();
-        document.querySelectorAll('.gallery-item').forEach((item, index) => {
-          const fileKey = Object.keys(projects)[index];
-          const match = !keyword || projects[fileKey].some(item =>
-            item.name.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword)
-          );
-          item.style.display = match ? 'flex' : 'none';
-        });
+function initLazyLoad() {
+  if (!('loading' in HTMLImageElement.prototype)) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          observer.unobserve(img);
+        }
       });
-    }
+    }, { rootMargin: '200px' });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      initGallery();
-      initSearch();
+    document.querySelectorAll('.gallery-img[data-src]').forEach(img => {
+      observer.observe(img);
     });
+  }
+}
 
-    window.onclick = (e) => {
-      if (e.target.classList.contains('detail-modal')) closeModal();
-    };
+function showFullscreen(imgSrc) {
+  const modal = document.getElementById('fullscreenModal');
+  const img = document.getElementById('fullscreenImg');
+  img.src = imgSrc;
+  modal.style.display = 'flex';
+}
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        closeFullscreen();
-      }
+function closeFullscreen() {
+  document.getElementById('fullscreenModal').style.display = 'none';
+}
+
+function showDetails(fileKey) {
+  const timestamp = new Date().toLocaleString();
+  browseHistory = [{ fileKey, timestamp }, ...browseHistory.slice(0, 9)];
+  localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
+  
+  const modal = document.getElementById('detailModal');
+  const content = projects[fileKey].map(item => `
+    <div class="project-item">
+      <div class="project-title">${item.name}</div>
+      <div class="project-price">💰 价格：${item.price}</div>
+      <div class="project-desc">✅ ${item.desc}</div>
+    </div>
+  `).join('');
+  document.getElementById('modalContent').innerHTML = content;
+  modal.style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('detailModal').style.display = 'none';
+}
+
+function initSearch() {
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', () => {
+    const keyword = searchInput.value.trim().toLowerCase();
+    document.querySelectorAll('.gallery-item').forEach((item, index) => {
+      const fileKey = Object.keys(projects)[index];
+      const match = !keyword || projects[fileKey].some(item =>
+        item.name.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword)
+      );
+      item.style.display = match ? 'flex' : 'none';
     });
-  </script>
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initGallery();
+  initSearch();
+});
+
+window.onclick = (e) => {
+  if (e.target.classList.contains('detail-modal')) closeModal();
+};
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeFullscreen();
+  }
+});
+</script>
 </body>
 </html>
